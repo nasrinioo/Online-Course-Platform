@@ -1,0 +1,111 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    password  String
+    firstName String
+    lastName  String
+    role      UserRole @default(STUDENT)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    coursesCreated  Course[]         @relation("InstructorCourses")
+    enrollments     Enrollment[]
+    lessonProgress  LessonProgress[]
+    trendingCourses TrendingCourse[]
+
+    @@map("users")
+}
+
+model Course {
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    price       Float    @default(0)
+    imageUrl    String?
+    isPublished Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    instructorId    String           @map("instructor_id")
+    instructor      User             @relation("InstructorCourses", fields: [instructorId], references: [id])
+    lessons         Lesson[]
+    enrollments     Enrollment[]
+    trendingCourses TrendingCourse[]
+
+    @@map("courses")
+}
+
+model Lesson {
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    content     String?
+    videoUrl    String?
+    order       Int
+    isPublished Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    courseId String           @map("course_id")
+    course   Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    progress LessonProgress[]
+
+    @@map("lessons")
+}
+
+model Enrollment {
+    id         String   @id @default(cuid())
+    enrolledAt DateTime @default(now())
+
+    userId   String @map("user_id")
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    courseId String @map("course_id")
+    course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@map("enrollments")
+}
+
+model LessonProgress {
+    id          String    @id @default(cuid())
+    completed   Boolean   @default(false)
+    completedAt DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    userId   String @map("user_id")
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    lessonId String @map("lesson_id")
+    lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, lessonId])
+    @@map("lesson_progress")
+}
+
+model TrendingCourse {
+    id        String   @id @default(cuid())
+    score     Float
+    createdAt DateTime @default(now())
+
+    courseId String  @map("course_id")
+    course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    userId   String? @map("user_id")
+    user     User?   @relation(fields: [userId], references: [id])
+
+    @@map("trending_courses")
+}
+
+enum UserRole {
+    STUDENT
+    INSTRUCTOR
+    ADMIN
+}

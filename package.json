@@ -12,7 +12,6 @@
     "studio": "prisma studio",
     "db:push": "prisma db push",
     "db:reset": "prisma migrate reset",
-    "db:seed": "node src/scripts/seed.js",
     "db:deploy": "prisma migrate deploy",
     "db:status": "prisma migrate status"
   },
@@ -36,6 +35,7 @@
     "dotenv": "^17.2.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.7",
     "prisma": "^6.13.0",
     "redis": "^4.6.13"
   },
@@ -46,7 +46,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "optionalDependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.53.0"
   },
   "engines": {
     "node": ">=16.0.0",
