@@ -1,0 +1,53 @@
+{
+  "name": "online-course-platform-api",
+  "version": "1.0.0",
+  "description": "Online Course Platform API with Express.js, Prisma, PostgreSQL, Redis, and JWT",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "build": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "node src/scripts/seed.js",
+    "db:deploy": "prisma migrate deploy",
+    "db:status": "prisma migrate status"
+  },
+  "keywords": [
+    "express",
+    "prisma", 
+    "postgresql",
+    "redis",
+    "jwt",
+    "api",
+    "courses",
+    "education",
+    "nodejs",
+    "backend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.13.0",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "express-validator": "^7.2.1",
+    "nodemon": "^3.1.10",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+} 
