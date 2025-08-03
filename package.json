@@ -1,5 +1,5 @@
 {
-  "name": "online-course-platform-api",
+  "name": "online-course-platform",
   "version": "1.0.0",
   "description": "Online Course Platform API with Express.js, Prisma, PostgreSQL, Redis, and JWT",
   "main": "server.js",
@@ -18,18 +18,17 @@
   },
   "keywords": [
     "express",
-    "prisma", 
+    "prisma",
     "postgresql",
     "redis",
     "jwt",
     "api",
     "courses",
-    "education",
-    "nodejs",
-    "backend"
+    "education"
   ],
   "author": "",
   "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "bcryptjs": "^3.0.2",
@@ -46,8 +45,11 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
+  "optionalDependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   }
-} 
+}
