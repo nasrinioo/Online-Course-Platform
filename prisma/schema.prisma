@@ -8,40 +8,70 @@ datasource db {
 }
 
 model User {
-    id        String   @id @default(cuid())
-    email     String   @unique
-    password  String
-    firstName String
-    lastName  String
-    role      UserRole @default(STUDENT)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id            String    @id @default(cuid())
+    email         String    @unique
+    password      String
+    firstName     String
+    lastName      String
+    role          UserRole  @default(STUDENT)
+    avatar        String?
+    bio           String?
+    isActive      Boolean   @default(true)
+    emailVerified DateTime?
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
 
     coursesCreated  Course[]         @relation("InstructorCourses")
     enrollments     Enrollment[]
     lessonProgress  LessonProgress[]
     trendingCourses TrendingCourse[]
+    reviews         Review[]
+    notifications   Notification[]
+    payments        Payment[]
 
     @@map("users")
 }
 
 model Course {
-    id          String   @id @default(cuid())
+    id          String           @id @default(cuid())
     title       String
     description String?
-    price       Float    @default(0)
+    price       Float            @default(0)
     imageUrl    String?
-    isPublished Boolean  @default(false)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    isPublished Boolean          @default(false)
+    isFeatured  Boolean          @default(false)
+    difficulty  CourseDifficulty @default(BEGINNER)
+    duration    Int? // in minutes
+    language    String           @default("English")
+    tags        String[] // array of tags
+    createdAt   DateTime         @default(now())
+    updatedAt   DateTime         @updatedAt
 
     instructorId    String           @map("instructor_id")
     instructor      User             @relation("InstructorCourses", fields: [instructorId], references: [id])
     lessons         Lesson[]
     enrollments     Enrollment[]
     trendingCourses TrendingCourse[]
+    reviews         Review[]
+    payments        Payment[]
+    categoryId      String?          @map("category_id")
+    category        Category?        @relation(fields: [categoryId], references: [id])
 
     @@map("courses")
+}
+
+model Category {
+    id          String   @id @default(cuid())
+    name        String   @unique
+    description String?
+    imageUrl    String?
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    courses Course[]
+
+    @@map("categories")
 }
 
 model Lesson {
@@ -50,21 +80,40 @@ model Lesson {
     description String?
     content     String?
     videoUrl    String?
+    duration    Int? // in minutes
     order       Int
     isPublished Boolean  @default(false)
+    isFree      Boolean  @default(false)
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
-    courseId String           @map("course_id")
-    course   Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-    progress LessonProgress[]
+    courseId    String             @map("course_id")
+    course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    progress    LessonProgress[]
+    attachments LessonAttachment[]
 
     @@map("lessons")
 }
 
+model LessonAttachment {
+    id        String   @id @default(cuid())
+    title     String
+    fileUrl   String
+    fileType  String
+    fileSize  Int? // in bytes
+    createdAt DateTime @default(now())
+
+    lessonId String @map("lesson_id")
+    lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+    @@map("lesson_attachments")
+}
+
 model Enrollment {
-    id         String   @id @default(cuid())
-    enrolledAt DateTime @default(now())
+    id          String    @id @default(cuid())
+    enrolledAt  DateTime  @default(now())
+    completedAt DateTime?
+    progress    Float     @default(0) // percentage completed
 
     userId   String @map("user_id")
     user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -79,6 +128,7 @@ model LessonProgress {
     id          String    @id @default(cuid())
     completed   Boolean   @default(false)
     completedAt DateTime?
+    watchTime   Int?      @default(0) // in seconds
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 
@@ -89,6 +139,22 @@ model LessonProgress {
 
     @@unique([userId, lessonId])
     @@map("lesson_progress")
+}
+
+model Review {
+    id        String   @id @default(cuid())
+    rating    Int      @db.SmallInt
+    comment   String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId   String @map("user_id")
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    courseId String @map("course_id")
+    course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, courseId])
+    @@map("reviews")
 }
 
 model TrendingCourse {
@@ -104,8 +170,63 @@ model TrendingCourse {
     @@map("trending_courses")
 }
 
+model Notification {
+    id        String           @id @default(cuid())
+    title     String
+    message   String
+    type      NotificationType
+    isRead    Boolean          @default(false)
+    createdAt DateTime         @default(now())
+
+    userId String @map("user_id")
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("notifications")
+}
+
+model Payment {
+    id            String        @id @default(cuid())
+    amount        Float
+    currency      String        @default("USD")
+    status        PaymentStatus @default(PENDING)
+    paymentMethod String?
+    transactionId String?
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+
+    userId   String @map("user_id")
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    courseId String @map("course_id")
+    course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+    @@map("payments")
+}
+
 enum UserRole {
     STUDENT
     INSTRUCTOR
     ADMIN
+}
+
+enum CourseDifficulty {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+    EXPERT
+}
+
+enum NotificationType {
+    COURSE_UPDATE
+    NEW_LESSON
+    PAYMENT_SUCCESS
+    PAYMENT_FAILED
+    SYSTEM_MESSAGE
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
+    CANCELLED
 }
