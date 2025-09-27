@@ -234,7 +234,7 @@ class ServerStorage {
       32
     );
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(algorithm, key);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
 
     let encrypted = cipher.update(data, "utf8", "hex");
     encrypted += cipher.final("hex");
@@ -252,7 +252,7 @@ class ServerStorage {
     const parts = encryptedData.split(":");
     const iv = Buffer.from(parts[0], "hex");
     const encrypted = parts[1];
-    const decipher = crypto.createDecipher(algorithm, key);
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
     let decrypted = decipher.update(encrypted, "hex", "utf8");
     decrypted += decipher.final("utf8");
