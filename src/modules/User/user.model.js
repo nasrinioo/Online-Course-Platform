@@ -26,20 +26,22 @@ exports.findById = async (id) => {
 };
 
 exports.create = async (userData) => {
-  return await prisma.user.create({
-    data: userData,
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-      avatar: true,
-      bio: true,
-      isActive: true,
-      emailVerified: true,
-      createdAt: true,
-    },
+  return await prisma.$transaction(async (tx) => {
+    return await tx.user.create({
+      data: userData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        avatar: true,
+        bio: true,
+        isActive: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
   });
 };
 
@@ -61,27 +63,31 @@ exports.findAll = async () => {
 };
 
 exports.update = async (id, updateData) => {
-  return await prisma.user.update({
-    where: { id },
-    data: updateData,
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-      avatar: true,
-      bio: true,
-      isActive: true,
-      emailVerified: true,
-      updatedAt: true,
-    },
+  return await prisma.$transaction(async (tx) => {
+    return await tx.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        avatar: true,
+        bio: true,
+        isActive: true,
+        emailVerified: true,
+        updatedAt: true,
+      },
+    });
   });
 };
 
 exports.delete = async (id) => {
-  return await prisma.user.delete({
-    where: { id },
+  return await prisma.$transaction(async (tx) => {
+    return await tx.user.delete({
+      where: { id },
+    });
   });
 };
 
@@ -144,39 +150,45 @@ exports.getStats = async () => {
 };
 
 exports.verifyEmail = async (userId) => {
-  return await prisma.user.update({
-    where: { id: userId },
-    data: { emailVerified: new Date() },
+  return await prisma.$transaction(async (tx) => {
+    return await tx.user.update({
+      where: { id: userId },
+      data: { emailVerified: new Date() },
+    });
   });
 };
 
 exports.updateProfile = async (userId, profileData) => {
-  return await prisma.user.update({
-    where: { id: userId },
-    data: profileData,
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-      avatar: true,
-      bio: true,
-      isActive: true,
-      emailVerified: true,
-      updatedAt: true,
-    },
+  return await prisma.$transaction(async (tx) => {
+    return await tx.user.update({
+      where: { id: userId },
+      data: profileData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        avatar: true,
+        bio: true,
+        isActive: true,
+        emailVerified: true,
+        updatedAt: true,
+      },
+    });
   });
 };
 
 exports.toggleActiveStatus = async (userId) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { isActive: true },
-  });
+  return await prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { isActive: true },
+    });
 
-  return await prisma.user.update({
-    where: { id: userId },
-    data: { isActive: !user.isActive },
+    return await tx.user.update({
+      where: { id: userId },
+      data: { isActive: !user.isActive },
+    });
   });
 };
