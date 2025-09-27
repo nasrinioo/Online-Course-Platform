@@ -1,7 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient({
-  log: ["error", "warn", "info"],
+  log:
+    process.env.NODE_ENV === "development"
+      ? ["error", "warn", "info"]
+      : ["error", "warn"],
   transactionOptions: {
     isolationLevel: "RepeatableRead",
     maxWait: 20000,
@@ -14,6 +17,8 @@ const prisma = new PrismaClient({
   },
 });
 
+const originalTransaction = prisma.$transaction;
+
 prisma.$transaction = async (fn, options = {}) => {
   const defaultOptions = {
     isolationLevel: "RepeatableRead",
@@ -21,7 +26,10 @@ prisma.$transaction = async (fn, options = {}) => {
     timeout: 180000,
   };
 
-  return await prisma.$transaction(fn, { ...defaultOptions, ...options });
+  return await originalTransaction.call(prisma, fn, {
+    ...defaultOptions,
+    ...options,
+  });
 };
 
 // Graceful shutdown
