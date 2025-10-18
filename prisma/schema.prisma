@@ -46,6 +46,7 @@ model Course {
     tags        String[] // array of tags
     createdAt   DateTime         @default(now())
     updatedAt   DateTime         @updatedAt
+    deletedAt   DateTime?        @map("deleted_at")
 
     instructorId    String           @map("instructor_id")
     instructor      User             @relation("InstructorCourses", fields: [instructorId], references: [id])
