@@ -4,12 +4,12 @@ const cors = require("cors");
 const authRoutes = require("../modules/Auth/auth.routes");
 const userRoutes = require("../modules/User/user.routes");
 const courseRoutes = require("../modules/Course/course.routes");
+const categoryRoutes = require("../modules/Category/category.routes");
 
 // TODO: Uncomment when modules are created
 // const lessonRoutes = require("../modules/Lesson/lesson.routes");
 // const enrollmentRoutes = require("../modules/Enrollment/enrollment.routes");
 // const progressRoutes = require("../modules/Progress/progress.routes");
-// const categoryRoutes = require("../modules/Category/category.routes");
 // const reviewRoutes = require("../modules/Review/review.routes");
 // const paymentRoutes = require("../modules/Payment/payment.routes");
 // const notificationRoutes = require("../modules/Notification/notification.routes");
@@ -28,10 +28,10 @@ router.use("/docs", cors(), (req, res) => {
       auth: "/api/auth",
       users: "/api/users",
       courses: "/api/courses",
+      categories: "/api/categories",
       // lessons: "/api/lessons",
       // enrollments: "/api/enrollments",
       // progress: "/api/progress",
-      // categories: "/api/categories",
       // reviews: "/api/reviews",
       // payments: "/api/payments",
       // notifications: "/api/notifications"
@@ -55,12 +55,12 @@ router.use(
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/courses", courseRoutes);
+router.use("/categories", categoryRoutes);
 
 // TODO: Uncomment when modules are created
 // router.use("/lessons", lessonRoutes);
 // router.use("/enrollments", enrollmentRoutes);
 // router.use("/progress", progressRoutes);
-// router.use("/categories", categoryRoutes);
 // router.use("/reviews", reviewRoutes);
 // router.use("/payments", paymentRoutes);
 // router.use("/notifications", notificationRoutes);
@@ -74,10 +74,10 @@ router.use("*", (req, res) => {
       "/api/auth",
       "/api/users",
       "/api/courses",
+      "/api/categories",
       // "/api/lessons",
       // "/api/enrollments",
       // "/api/progress",
-      // "/api/categories",
       // "/api/reviews",
       // "/api/payments",
       // "/api/notifications"

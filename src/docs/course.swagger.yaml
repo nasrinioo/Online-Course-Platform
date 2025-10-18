@@ -5,6 +5,13 @@ info:
   description: Course management endpoints for the Online Course Platform
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+  
   schemas:
     Course:
       type: object
@@ -32,6 +39,32 @@ components:
               type: string
             lastName:
               type: string
+        categoryId:
+          type: string
+        category:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            imageUrl:
+              type: string
+        isFeatured:
+          type: boolean
+        difficulty:
+          type: string
+          enum: [BEGINNER, INTERMEDIATE, ADVANCED, EXPERT]
+        duration:
+          type: integer
+        language:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
         lessons:
           type: array
           items:
@@ -49,6 +82,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when course was soft deleted
     
     CourseRequest:
       type: object
@@ -68,6 +106,31 @@ components:
           format: uri
         isPublished:
           type: boolean
+        categoryId:
+          type: string
+          description: Optional category ID to assign course to a category
+        instructorId:
+          type: string
+          description: Optional instructor ID (Admin only - assign course to specific instructor)
+        isFeatured:
+          type: boolean
+          description: Whether course is featured
+        difficulty:
+          type: string
+          enum: [BEGINNER, INTERMEDIATE, ADVANCED, EXPERT]
+          description: Course difficulty level
+        duration:
+          type: integer
+          minimum: 1
+          description: Course duration in minutes
+        language:
+          type: string
+          description: Course language
+        tags:
+          type: array
+          items:
+            type: string
+          description: Course tags
     
     CourseStats:
       type: object
@@ -253,7 +316,8 @@ paths:
           description: Course not found
     
     delete:
-      summary: Delete course (Instructor/Admin only)
+      summary: Soft delete course (Instructor/Admin only)
+      description: Soft deletes the course by setting deletedAt timestamp and unpublishing it. Course data is preserved for recovery.
       tags: [Courses]
       security:
         - bearerAuth: []
@@ -265,7 +329,14 @@ paths:
             type: string
       responses:
         '200':
-          description: Course deleted successfully
+          description: Course soft deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '403':
           description: Forbidden
         '404':
@@ -292,4 +363,81 @@ paths:
                   courses:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Course' 
+                      $ref: '#/components/schemas/Course'
+
+  /api/courses/deleted:
+    get:
+      summary: Get soft deleted courses (Admin only)
+      tags: [Courses]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Deleted courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+        '403':
+          description: Forbidden - Admin access required
+
+  /api/courses/{id}/restore:
+    patch:
+      summary: Restore soft deleted course (Admin only)
+      tags: [Courses]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Course restored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  course:
+                    $ref: '#/components/schemas/Course'
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Course not found
+
+  /api/courses/{id}/hard-delete:
+    delete:
+      summary: Permanently delete course (Admin only)
+      tags: [Courses]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Course permanently deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Course not found 
