@@ -93,6 +93,56 @@ class ErrorHandler {
       return res.status(403).json({ error: "Account is deactivated" });
     }
 
+    const notFoundMessages = new Set([
+      "Lesson not found",
+      "Enrollment not found",
+      "Review not found",
+      "Payment not found",
+      "Notification not found",
+    ]);
+    if (notFoundMessages.has(error.message)) {
+      return res.status(404).json({ error: error.message });
+    }
+
+    const forbiddenMessages = new Set([
+      "Not authorized to manage lessons for this course",
+      "Not authorized to update this lesson",
+      "Not authorized to delete this lesson",
+      "Not authorized to view this enrollment",
+      "Not authorized to view enrollments for this course",
+      "Not authorized to update this enrollment",
+      "Must be enrolled to update lesson progress",
+      "Must be enrolled to review this course",
+      "Not authorized to update this review",
+      "Not authorized to delete this review",
+      "Not authorized to view this payment",
+      "Not authorized to update payment status",
+      "Not authorized to create notifications",
+    ]);
+    if (forbiddenMessages.has(error.message)) {
+      return res.status(403).json({ error: error.message });
+    }
+
+    if (error.message === "Already enrolled in this course") {
+      return res.status(409).json({ error: error.message });
+    }
+
+    if (error.message === "You have already reviewed this course") {
+      return res.status(409).json({ error: error.message });
+    }
+
+    if (error.message === "Course is not available for enrollment") {
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (error.message === "Payment required before enrollment") {
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (error.message === "Invalid payment amount") {
+      return res.status(400).json({ error: error.message });
+    }
+
     if (error.message === "Current password is incorrect") {
       return res.status(400).json({ error: "Current password is incorrect" });
     }
