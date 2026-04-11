@@ -176,22 +176,3 @@ pnpm run test:db
 # Run tests (when implemented)
 pnpm run test
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the ISC License.
-
-## 🆘 Support
-
-For issues and questions:
-- Check the API documentation at `/api-docs`
-- Review the database schema in `prisma/schema.prisma`
-- Test database connection with `pnpm run test:db`
