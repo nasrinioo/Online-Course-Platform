@@ -69,6 +69,14 @@ REDIS_URL=redis://localhost:6379
 # CORS Configuration
 CORS_ORIGIN=*
 
+# Rate limiting (optional — defaults shown)
+# Global API limiter applies to routes under /api after /healthz and /docs
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+# Stricter limit for POST /api/auth/login and /api/auth/signup
+AUTH_RATE_LIMIT_WINDOW_MS=900000
+AUTH_RATE_LIMIT_MAX=20
+
 # Encryption
 ENCRYPTION_SECRET=your_super_secret_encryption_key_here
 
@@ -82,12 +90,19 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 1. **Create a Supabase project** at [supabase.com](https://supabase.com)
 2. **Get your connection string** from the Database settings
 3. **Update your `.env` file** with the connection details
-4. **Run the SQL setup script** in your Supabase SQL editor:
+4. **Apply the database schema** using Prisma Migrate (recommended):
 
-```sql
--- Copy and paste the contents of setup-database.sql
--- This will create all necessary tables
-```
+   ```bash
+   pnpm run migrate
+   ```
+
+   For production or CI, use:
+
+   ```bash
+   pnpm run db:deploy
+   ```
+
+   Alternatively, you can run legacy SQL from `setup-database.sql` in the Supabase SQL editor if you are not using migrations.
 
 ## 📊 Database Schema
 
@@ -141,7 +156,7 @@ pnpm run test         # Run tests
 - Password hashing with bcrypt
 - CORS configuration
 - Input validation
-- Rate limiting (configurable)
+- Rate limiting: global limiter on `/api` routes (see `RATE_LIMIT_*` env vars) and a stricter limiter on `POST /api/auth/login` and `POST /api/auth/signup` (`AUTH_RATE_LIMIT_*`)
 
 ## 🚀 Deployment
 
