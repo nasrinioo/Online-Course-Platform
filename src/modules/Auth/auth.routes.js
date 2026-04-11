@@ -17,13 +17,26 @@ const {
   uploadAvatar: uploadAvatarMiddleware,
 } = require("../../middleware/upload");
 const { attachServerStorage } = require("../../middleware/serverStorage");
+const { authRouteLimiter } = require("../../middleware/rateLimit");
 
 const router = express.Router();
 
 router.use(attachServerStorage);
 
-router.post("/signup", validateSignup, handleValidationErrors, signup);
-router.post("/login", validateLogin, handleValidationErrors, login);
+router.post(
+  "/signup",
+  authRouteLimiter,
+  validateSignup,
+  handleValidationErrors,
+  signup
+);
+router.post(
+  "/login",
+  authRouteLimiter,
+  validateLogin,
+  handleValidationErrors,
+  login
+);
 
 router.put(
   "/change-password",
